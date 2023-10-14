@@ -33,3 +33,21 @@ def whatsapp_get_avatar_url(phone: str):
     response = requests.get(url, headers=headers)
 
     return response.json().get("profilePic")
+
+
+def get_age(image_url: str, accuracy_boost=3):
+    url = "https://face-detection6.p.rapidapi.com/img/face-age-gender"
+
+    payload = {"url": image_url, "accuracy_boost": accuracy_boost}
+    headers = {
+        "content-type": "application/json",
+        "X-RapidAPI-Key": settings.RAPID_KEY,
+        "X-RapidAPI-Host": "face-detection6.p.rapidapi.com",
+    }
+
+    response = requests.post(url, json=payload, headers=headers)
+    response = response.json()
+    age_range = response["detected_faces"][0]["Age"]["Age-Range"]
+    avg = (age_range["Low"] + age_range["High"]) // 2
+
+    return avg
