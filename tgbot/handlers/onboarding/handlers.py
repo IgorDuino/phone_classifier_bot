@@ -11,6 +11,8 @@ import tgbot.handlers.onboarding.keyboards as keyboards
 
 from users.models import User
 
+import classifier.utils
+
 
 logger = logging.getLogger(__name__)
 
@@ -49,3 +51,7 @@ def start(update: Update, context: CallbackContext):
     context.user_data.clear()
 
     return ConversationHandler.END
+
+
+def classify(update: Update, context: CallbackContext):
+    pass

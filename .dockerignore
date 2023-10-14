@@ -1,2 +1,6 @@
 .env
 venv
+
+*.session
+*.session-journal
+classifier/safe_folder/*

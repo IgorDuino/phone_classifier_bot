@@ -150,3 +150,7 @@ BOT_LINK = config("BOT_LINK")
 ROOT_ADMIN_ID = config("ROOT_ADMIN_ID")
 TELEGRAM_LOGS_CHAT_ID = config("TELEGRAM_LOGS_CHAT_ID", default=None)
 DISABLE_FOR_NEW_USERS = config("DISABLE_FOR_NEW_USERS", cast=bool, default=False)
+API_ID = config("API_ID")
+API_HASH = config("API_HASH")
+
+RAPID_KEY = config("RAPID_KEY")

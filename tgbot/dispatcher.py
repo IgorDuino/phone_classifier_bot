@@ -32,6 +32,8 @@ def setup_dispatcher(dp: Dispatcher):
 
     dp.add_handler(CommandHandler("start", onboarding_handlers.start, pass_user_data=True))
 
+    dp.add_handler(CommandHandler("classify", onboarding_handlers.classify, pass_user_data=True))
+
     # handling errors
     dp.add_error_handler(error.send_stacktrace_to_tg_chat)
 
