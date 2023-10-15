@@ -4,22 +4,32 @@ from dtb import settings
 import requests
 from django.urls import reverse
 import os
-
-app = Client(
-    "account", api_id=settings.API_ID, api_hash=settings.API_HASH, workdir=os.path.join(settings.BASE_DIR, "classifier")
-)
-app.start()
+import asyncio
 
 
-def telegram_get_avatar_url(phone: str) -> bytes:
-    app.import_contacts([InputPhoneContact(phone, phone)])
-    avatar = app.download_media(app.get_chat_photos(phone).__next__(), in_memory=True)
+async def telegram_get_avatar_url(phone: str) -> bytes:
+    async with Client(
+        "account",
+        api_id=settings.API_ID,
+        api_hash=settings.API_HASH,
+        workdir=os.path.join(settings.BASE_DIR, "classifier"),
+    ) as app:
+        await app.import_contacts([InputPhoneContact(phone, phone)])
+        chat_photos = app.get_chat_photos(phone)
 
-    file_name = os.path.join(settings.BASE_DIR, "classifier/safe_folder", f"{phone}.png")
-    with open(file_name, "wb") as f:
-        f.write(bytes(avatar.getbuffer()))
+        photo = await chat_photos.__anext__()
 
-    return reverse("download_file", args=[file_name])
+        if photo:
+            avatar = await app.download_media(photo, in_memory=True)
+
+            file_name = os.path.join(settings.BASE_DIR, "classifier/safe_folder", f"{phone}.png")
+            print(file_name)
+            with open(file_name, "wb") as f:
+                data = bytes(avatar.getbuffer())
+                f.write(data)
+                print(data)
+
+            return settings.MAIN_URL + reverse("download_file", args=[f"{phone}.png"])
 
 
 def whatsapp_get_avatar_url(phone: str):
@@ -46,6 +56,7 @@ def get_age(image_url: str, accuracy_boost=3):
     }
 
     response = requests.post(url, json=payload, headers=headers)
+    print(response)
     response = response.json()
     age_range = response["detected_faces"][0]["Age"]["Age-Range"]
     avg = (age_range["Low"] + age_range["High"]) // 2

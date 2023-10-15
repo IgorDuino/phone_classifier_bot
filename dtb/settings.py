@@ -64,11 +64,12 @@ INTERNAL_IPS = [
     "127.0.0.1",
     # ...
 ]
+MAIN_URL = config("URL", default="http://localhost:8000")
 
 CORS_ORIGIN_ALLOW_ALL = True
 CORS_ALLOW_CREDENTIALS = True
 
-CSRF_TRUSTED_ORIGINS = [config("URL", default="http://localhost:8000")]
+CSRF_TRUSTED_ORIGINS = [MAIN_URL]
 
 ROOT_URLCONF = "dtb.urls"
 
@@ -124,6 +125,7 @@ TIME_ZONE = "UTC"  # TODO: set from env, use in datetime.now
 USE_I18N = True
 USE_L10N = True
 USE_TZ = True
+
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
