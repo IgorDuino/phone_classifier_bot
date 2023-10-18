@@ -50,6 +50,12 @@ def start(update: Update, context: CallbackContext):
 
     context.user_data.clear()
 
+    context.bot.send_message(
+        chat_id=update.effective_user.id,
+        text=f"Hello, {user.tg_str}!\nTo classify a phone number, send /classify <phone_number>.\nExample: /classify +79151428383\nI will try to find the avatars of the phone number owner in Telegram and WhatsApp and calculate the average age of the person in the avatars, using computer vision.",
+        parse_mode=ParseMode.HTML,
+    )
+
     return ConversationHandler.END
 
 
