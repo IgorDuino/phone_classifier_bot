@@ -1,7 +1,7 @@
 requests==2.31.0
 python-decouple==3.8
 ipython==8.13.2
-django==4.2.1
+django==4.2.6
 django-cors-headers==4.0.0
 django-debug-toolbar==4.1.0
 whitenoise==6.4.0
