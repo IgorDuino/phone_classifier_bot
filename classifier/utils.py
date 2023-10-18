@@ -39,7 +39,10 @@ def whatsapp_get_avatar_url(phone: str):
 
     response = requests.get(url, headers=headers)
 
-    return response.json().get("profilePic")
+    try:
+        return response.json()["profilePic"]
+    except:
+        raise Exception(f"Error getting avatar: {response.text}")
 
 
 def get_age(image_url: str, accuracy_boost=3):
@@ -57,7 +60,7 @@ def get_age(image_url: str, accuracy_boost=3):
         data = response.json()
         age_range = data["detected_faces"][0]["Age"]["Age-Range"]
         avg = (age_range["Low"] + age_range["High"]) // 2
-    except:
-        print(response.text)
+        return avg
 
-    return avg
+    except:
+        raise Exception(f"Error getting age: {response.text}")

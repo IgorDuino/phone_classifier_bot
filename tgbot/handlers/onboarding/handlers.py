@@ -53,8 +53,20 @@ def start(update: Update, context: CallbackContext):
     return ConversationHandler.END
 
 
+def data_dict_to_str(data: dict):
+    if data.get("url"):
+        if not (data.get("age") or data.get("age_error")):
+            return f"URL: <a href='{data.get('url')}'>avatar</a>\n"
+        if data.get("age"):
+            return f"Age: {data.get('age')}\nURL: <a href='{data.get('url')}'>avatar</a>\n"
+        else:
+            return f"Age: <code>{data['age_error']}</code>\nURL: <a href='{data.get('url')}'>avatar</a>\n"
+    else:
+        return f"Error: <code>{data.get('error')}</code>\n"
+
+
 def classify(update: Update, context: CallbackContext):
-    if len(update.message.text.split()) != 2:
+    if len(update.message.text.split()) < 2:
         context.bot.send_message(
             chat_id=update.effective_user.id,
             text=f"No phone number provided",
@@ -62,7 +74,7 @@ def classify(update: Update, context: CallbackContext):
         )
         return
 
-    phone = update.message.text.split()[1]
+    phone = ''.join(update.message.text.split()[1:])
 
     if not phone.startswith("+"):
         phone = "+" + phone
@@ -100,26 +112,58 @@ def classify(update: Update, context: CallbackContext):
 
     telegram_data = {}
 
-    telegram_data["url"] = asyncio.run(classifier.utils.telegram_get_avatar_url(phone_str))
+    try:
+        telegram_data["url"] = asyncio.run(classifier.utils.telegram_get_avatar_url(phone_str))
+    except Exception as e:
+        telegram_data["error"] = str(e)
+
+    message.edit_text(
+        text=f"Classifying {phone_str}...\nCountry: {country}\n<b>Telegram</b>:\n{data_dict_to_str(telegram_data)}",
+        parse_mode=ParseMode.HTML,
+    )
 
     whatsapp_data = {}
 
-    whatsapp_data["url"] = classifier.utils.whatsapp_get_avatar_url(phone_str)
+    try:
+        whatsapp_data["url"] = classifier.utils.whatsapp_get_avatar_url(phone_str)
+    except Exception as e:
+        whatsapp_data["error"] = str(e)
+
+    message.edit_text(
+        text=f"Classifying {phone_str}...\nCountry: {country}\n<b>Telegram</b>:\n{data_dict_to_str(telegram_data)}\n<b>WhatsApp</b>:\n{data_dict_to_str(whatsapp_data)}",
+        parse_mode=ParseMode.HTML,
+    )
 
     if telegram_data.get("url"):
-        telegram_data["age"] = classifier.utils.get_age(telegram_data.get("url"))
+        try:
+            telegram_data["age"] = classifier.utils.get_age(telegram_data.get("url"))
+        except Exception as e:
+            telegram_data["age_error"] = str(e)
+
+        message.edit_text(
+            text=f"Classifying {phone_str}...\nCountry: {country}\n<b>Telegram</b>:\n{data_dict_to_str(telegram_data)}\n<b>WhatsApp</b>:\n{data_dict_to_str(whatsapp_data)}",
+            parse_mode=ParseMode.HTML,
+        )
 
     if whatsapp_data.get("url"):
-        whatsapp_data["age"] = classifier.utils.get_age(whatsapp_data.get("url"))
+        try:
+            whatsapp_data["age"] = classifier.utils.get_age(whatsapp_data.get("url"))
+        except Exception as e:
+            whatsapp_data["age_error"] = str(e)
+
+        message.edit_text(
+            text=f"Classifying {phone_str}...\nCountry: {country}\n<b>Telegram</b>:\n{data_dict_to_str(telegram_data)}\n<b>WhatsApp</b>:\n{data_dict_to_str(whatsapp_data)}",
+            parse_mode=ParseMode.HTML,
+        )
 
     if whatsapp_data.get("age") and telegram_data.get("age"):
-        average_age = whatsapp_data.get("age") + telegram_data.get("age") / 2
+        average_age = whatsapp_data.get("age") + telegram_data.get("age") // 2
     elif whatsapp_data.get("age"):
         average_age = whatsapp_data.get("age")
     elif telegram_data.get("age"):
         average_age = telegram_data.get("age")
     else:
-        average_age = "Unrecognized"
+        average_age = "No enough data"
 
     classification_request = ClassificationRequest(
         user=User.get_user(update),
@@ -133,6 +177,6 @@ def classify(update: Update, context: CallbackContext):
     classification_request.save()
 
     message.edit_text(
-        text=f"Phone: {phone}\nCountry: {country}\nTelegram: {telegram_data}\nWhatsapp: {whatsapp_data}\nAverage age: {average_age}",
+        text=f"Phone: <code>{phone_str}</code>\nCountry: {country}\n<b>Telegram</b>:\n{data_dict_to_str(telegram_data)}\n<b>WhatsApp</b>:\n{data_dict_to_str(whatsapp_data)}\nAverage age: {average_age}",
         parse_mode=ParseMode.HTML,
     )
