@@ -67,3 +67,8 @@ services:
 
 volumes:
   postgres_data:
+
+networks:
+  default:
+    external:
+      name: ${NETWORK_NAME}
