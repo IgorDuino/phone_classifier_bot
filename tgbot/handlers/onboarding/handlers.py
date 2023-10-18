@@ -1,21 +1,18 @@
-from datetime import datetime, timedelta
+import asyncio
 import logging
-import re
-
-from dtb import settings
 
 from telegram import ParseMode, Update
 from telegram.ext import CallbackContext, ConversationHandler
-from tgbot import states
-import tgbot.handlers.onboarding.keyboards as keyboards
 
+from dtb import settings
+import tgbot.handlers.onboarding.keyboards as keyboards
+from classifier.models import ClassificationRequest
 from users.models import User
-import asyncio
 
 import classifier.utils
-
 from phone_iso3166.country import phone_country
 import phonenumbers
+
 
 logger = logging.getLogger(__name__)
 
@@ -57,7 +54,18 @@ def start(update: Update, context: CallbackContext):
 
 
 def classify(update: Update, context: CallbackContext):
+    if len(update.message.text.split()) != 2:
+        context.bot.send_message(
+            chat_id=update.effective_user.id,
+            text=f"No phone number provided",
+            parse_mode=ParseMode.HTML,
+        )
+        return
+
     phone = update.message.text.split()[1]
+
+    if not phone.startswith("+"):
+        phone = "+" + phone
 
     try:
         phone = phonenumbers.parse(phone, None)
@@ -112,6 +120,17 @@ def classify(update: Update, context: CallbackContext):
         average_age = telegram_data.get("age")
     else:
         average_age = "Unrecognized"
+
+    classification_request = ClassificationRequest(
+        user=User.get_user(update),
+        phone=phone_str,
+        country=country,
+        telegram_age=telegram_data.get("age"),
+        whatsapp_age=whatsapp_data.get("age"),
+        telegram_avatar_url=telegram_data.get("url"),
+        whatsapp_avatar_url=whatsapp_data.get("url"),
+    )
+    classification_request.save()
 
     message.edit_text(
         text=f"Phone: {phone}\nCountry: {country}\nTelegram: {telegram_data}\nWhatsapp: {whatsapp_data}\nAverage age: {average_age}",

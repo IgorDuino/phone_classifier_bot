@@ -31,8 +31,8 @@ class User(CreateUpdateTracker):
     is_active = models.BooleanField(default=True, verbose_name="Активен?")
 
     class Meta:
-        verbose_name = "Пользователь"
-        verbose_name_plural = "Пользователи"
+        verbose_name = "User"
+        verbose_name_plural = "Users"
 
     def __str__(self):
         if self.username:
