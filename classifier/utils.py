@@ -12,7 +12,7 @@ async def telegram_get_avatar_url(phone: str) -> bytes:
         "account",
         api_id=settings.API_ID,
         api_hash=settings.API_HASH,
-        workdir=os.path.join(settings.BASE_DIR, "classifier"),
+        workdir=os.path.join(settings.BASE_DIR, "tgsessions"),
     ) as app:
         await app.import_contacts([InputPhoneContact(phone, phone)])
         chat_photos = app.get_chat_photos(phone)
@@ -22,12 +22,9 @@ async def telegram_get_avatar_url(phone: str) -> bytes:
         if photo:
             avatar = await app.download_media(photo, in_memory=True)
 
-            file_name = os.path.join(settings.BASE_DIR, "classifier/safe_folder", f"{phone}.png")
-            print(file_name)
+            file_name = os.path.join(settings.BASE_DIR, "download_folder", f"{phone}.png")
             with open(file_name, "wb") as f:
-                data = bytes(avatar.getbuffer())
-                f.write(data)
-                print(data)
+                f.write(bytes(avatar.getbuffer()))
 
             return settings.MAIN_URL + reverse("download_file", args=[f"{phone}.png"])
 

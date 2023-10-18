@@ -8,8 +8,11 @@ __pycache__/
 
 test.py
 
-*.session
-*.session-journal
+download_folder/*
+!download_folder/.gitkeep
+
+tgsessions/*
+!tgsessions/.gitkeep
 
 .vscode
 

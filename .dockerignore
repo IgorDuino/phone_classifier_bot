@@ -3,4 +3,5 @@ venv
 
 *.session
 *.session-journal
-classifier/safe_folder/*
+download_folder/*
+tgsessions/*

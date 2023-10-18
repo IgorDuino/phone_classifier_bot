@@ -64,18 +64,15 @@ def classify(update: Update, context: CallbackContext):
     telegram_data["url"] = asyncio.run(classifier.utils.telegram_get_avatar_url(phone))
 
     whatsapp_data = {}
-    
+
     whatsapp_data["url"] = classifier.utils.whatsapp_get_avatar_url(phone)
 
     if telegram_data.get("url"):
         print(telegram_data)
         telegram_data["age"] = classifier.utils.get_age(telegram_data.get("url"))
 
-
     if whatsapp_data.get("url"):
         print(whatsapp_data)
         whatsapp_data["age"] = classifier.utils.get_age(whatsapp_data.get("url"))
-        
 
     print(country, telegram_data, whatsapp_data)
-    

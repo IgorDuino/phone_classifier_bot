@@ -1,4 +1,4 @@
-version: "3.8"
+version: '3.8'
 # TODO: add Django superuser creation
 services:
   db:
@@ -17,6 +17,8 @@ services:
       dockerfile: Dockerfile
     restart: unless-stopped
     command: sh -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
+    volumes:
+      - ./download_folder:/code/download_folder
     ports:
       - ${PORT}:8000
     env_file:
@@ -30,6 +32,9 @@ services:
       dockerfile: Dockerfile
     restart: unless-stopped
     command: python run_polling.py
+    volumes:
+      - ./tgsessions:/code/tgsessions
+      - ./download_folder:/code/download_folder
     env_file:
       - ./.env
     depends_on:
