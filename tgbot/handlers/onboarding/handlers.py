@@ -80,7 +80,7 @@ def classify(update: Update, context: CallbackContext):
         )
         return
 
-    phone = ''.join(update.message.text.split()[1:])
+    phone = "".join(update.message.text.split()[1:])
 
     if not phone.startswith("+"):
         phone = "+" + phone
