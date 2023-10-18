@@ -53,9 +53,11 @@ def get_age(image_url: str, accuracy_boost=3):
     }
 
     response = requests.post(url, json=payload, headers=headers)
-    print(response)
-    response = response.json()
-    age_range = response["detected_faces"][0]["Age"]["Age-Range"]
-    avg = (age_range["Low"] + age_range["High"]) // 2
+    try:
+        data = response.json()
+        age_range = data["detected_faces"][0]["Age"]["Age-Range"]
+        avg = (age_range["Low"] + age_range["High"]) // 2
+    except:
+        print(response.text)
 
     return avg
